@@ -2,7 +2,7 @@
   <div id="wrapper">
         <div class="header">
             <div class="logo">
-              <img src="src/assets/logo_01.png" alt="今日训练">
+              <img src="./assets/logo.png" alt="今日训练">
             </div>
             <div class="rightmenu">
               <div class="userinfo">
@@ -47,7 +47,4 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>
 
