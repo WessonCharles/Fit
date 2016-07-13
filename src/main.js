@@ -1,29 +1,26 @@
 import Vue from 'vue'
-// import App from './App.vue'
-import Hello from './components/Hello.vue'
+import App from './App.vue'
+import Home from './views/Home.vue'
 
 import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
-
-var App = Vue.extend({})
-
-var router = new VueRouter({
-	history:true,
-	saveScrollPosition:true
-})
+const router = new VueRouter()
 
 router.map({
-	'/hello':{
-		components:Hello
+	'/':{
+		components:Home
 	},
-	'/layout':{
-		component:Layout 
-	}
+	// '/login':{
+	// 	components:Hello
+	// },
+	// '/layout':{
+	// 	component:Layout 
+	// }
 })
 
-router.redirect({ '*': '/hello' })
+router.redirect({ '*': '/' })
 
 router.start(App,'#app')
 // /* eslint-disable no-new */
