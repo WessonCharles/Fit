@@ -9,8 +9,10 @@
   export default {
     methods: {
       toggleDropdown(e) {
-        e.preventDefault()
-        this.$el.classList.toggle('open')
+        // e.preventDefault()
+        const el = $(this.$el);
+        el.attr('class').indexOf("open")>-1?el.removeClass('open'):el.addClass('open');
+        // this.$el.classList.indexOf("open")>-1?this.$el.classList.splice(this.$el.classList)
       }
     },
     ready() {
@@ -21,9 +23,9 @@
         toggle.style.borderRadius = '4px'
         toggle.addEventListener('click', this.toggleDropdown)
       }
-      this._closeEvent = EventListener.listen(window, 'click', (e)=> {
-        if (!el.contains(e.target) || e.target.nodeName.toLowerCase() == 'a') el.classList.remove('open')
-      })
+      // this._closeEvent = EventListener.listen(window, 'click', (e)=> {
+      //   if (!el.contains(e.target) || e.target.nodeName.toLowerCase() == 'a') el.classList.remove('open')
+      // })
     },
     beforeDestroy() {
       if (this._closeEvent) this._closeEvent.remove()
