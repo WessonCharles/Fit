@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
 import Home from './views/Home.vue'
+import Layout from './views/Layout.vue'
+import LayoutDetail from './views/LayoutDetail.vue'
 
 import VueRouter from 'vue-router'
 
@@ -12,26 +14,35 @@ Vue.use(VueRouter)
 
 var router = new VueRouter({		
 	history:true,		
-	saveScrollPosition:true		
+	// saveScrollPosition:true		
 })
 
 router.map({
 	'/':{
+		name:'index',
 		components:Home
 	},
 	// '/login':{
 	// 	components:Hello
 	// },
-	// '/layout':{
-	// 	component:Layout 
-	// }
+	'/layout':{
+		name:'layout',
+		component:Layout
+		// subRoutes:{
+			
+		// }
+	},
+	'/layout/create':{
+		name:'create',
+		component:LayoutDetail
+	},
+	'/layout/detail':{
+		name:'detail',
+		component:LayoutDetail
+	}
 })
 
-router.redirect({ '*': '/layout' })
+router.redirect({ '*': 'index' })
+
 
 router.start(App,'#app')
-// /* eslint-disable no-new */
-// new Vue({
-//   el: 'body',
-//   components: { App }
-// })
