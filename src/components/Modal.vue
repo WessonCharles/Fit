@@ -97,6 +97,7 @@ import coerceBoolean from '../utils/coerceBoolean.js'
         const el = this.$el
         const body = document.body
         const scrollBarWidth =  getScrollBarWidth()
+        console.log(val)
         if (val) {
           el.querySelector('.modal-content').focus()
           el.style.display = 'block'

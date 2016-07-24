@@ -19,7 +19,7 @@ export default {
       y:0,
       range:false,
       currentDate:'',
-      plans:[]
+      plans:{}
     }
   },
   created(){
@@ -30,7 +30,13 @@ export default {
     that.currentDate = week+" "+date;
 
     fitDB.indexedDB.open(function(datas){
-      that.plans = datas;
+      var obj = {};
+      for(var d=0;d<datas.length;d++){
+        if(!obj[datas[d].ref])obj[datas[d].ref] = [];
+        obj[datas[d].ref].push(datas[d]);
+      }
+      console.log(obj)
+      that.plans = obj;
     })
   },
   components: {

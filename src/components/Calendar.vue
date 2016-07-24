@@ -20,14 +20,19 @@
                     <td 
                     v-for="(k2,child) in day" 
                     :class="{'today':child.today,'disabled':child.disabled}"
-                    @click="select(k1,k2,$event,year+'/'+months[month]+'/'+child.day)" @touchstart="select(k1,k2,$event)" data-date="{{year}}/{{months[month]}}/{{child.day}}">
+                    @click="select(k1,k2,$event,year+'/'+child.month+'/'+child.day)" @touchstart="select(k1,k2,$event)" data-date="{{year}}/{{child.month}}/{{child.day}}">
                     {{child.day}}
+                    <div class="td-segment" v-if="plans[year+child.month+(child.day<10?'0'+child.day:child.day)]">
+                        <div class="td-inner-segment">
+                            <p v-for="seg in plans[year+child.month+(child.day<10?'0'+child.day:child.day)]" class="segment {{randomClass()}}" data-tpid="{{seg.tpid}}">{{seg.name}}</p>
+                        </div>
+                    </div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-    <modal title="请选择训练类型" iscancel="false" isok="true" :callback="createplan" ok-text="开始制定" effect="zoom" :show.sync="showModal">
+    <modal title="请选择训练类型" iscancel="false" isok="true" :callback="createplan" ok-text="开始制定" effect="zoom" :show.sync="showModal.type">
         <div class="modal-body" slot="modal-body">
             <div style="height:80px;width:80px;line-height:80px;text-align:center;" @click="current_type='crossfit'">CrossFit</div>
         </div>
@@ -37,6 +42,7 @@
 <script>
 import modal from '../components/Modal.vue'
 import fitDB from '../utils/indexedDB.js'
+import protot from '../utils/prototypes.js'
 
 
 module.exports = {
@@ -84,8 +90,8 @@ module.exports = {
             default:Array
         },
         plans:{
-        	type:Array,
-        	default:Array
+        	type:Object,
+        	default:Object
         }
     },
     data:function(){
@@ -104,18 +110,18 @@ module.exports = {
             months:['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
 
             //about modal
-            showModal:false,
-            fadeModal:false,
-            zoomModal:false,
-            showCustomModal:false,
-            smallModal:false,
+            showModal:{
+                type:false,//训练类型
+            },
 
             //about plans
+            whichDay:'',
             current_type:''
         }
     },
     created:function(){
         var that=this;
+        console.log(that)
         var now = new Date();
         if(that.value!=""){
             if(that.value.indexOf("-")!=-1)that.sep="-";
@@ -170,12 +176,16 @@ module.exports = {
     },
     methods:{
         //about modal
-        showmodals:function(e,date){
+        showmodals:function(e,key,date){
+            if(e.target.className.indexOf("seg-color")>-1){
+                return false;
+            }
             var that = this;
             if(e.target.className.indexOf("disabled")>-1){
                 return false;
             }
-            this.showModal = true;
+            that.whichDay = date;
+            this.showModal[key] = true;
         },
         //about calendar
         zero:function(n){
@@ -190,6 +200,19 @@ module.exports = {
             that.currentMonth=that.months[m];
             var seletSplit=that.value.split(" ")[0].split(that.sep);
             var i,line=0,temp=[];
+            var prevmonth = 0,nextmonth = 0;
+            if (that.month == 0) {
+                prevmonth = 11;
+            } else {
+                prevmonth = parseInt(that.months[m]) - 1;
+                prevmonth = prevmonth<10?'0'+prevmonth:prevmonth;
+            }
+            if (that.month == 11) {
+                nextmonth = 0;
+            } else {
+                nextmonth = parseInt(that.months[m]) + 1 ;
+                nextmonth = nextmonth<10?'0'+nextmonth:nextmonth;
+            }
             for(i=1;i <= lastDateOfMonth;i++) {
                 var dow = new Date(y, m, i).getDay();
                 // 第一行
@@ -200,7 +223,7 @@ module.exports = {
 
                     var k = lastDayOfLastMonth - firstDayOfMonth + 1;
                     for (var j = 0; j < firstDayOfMonth; j++) {
-                        temp[line].push({day:k,disabled:true});
+                        temp[line].push({month:prevmonth,day:k,disabled:true});
                         k++;
                     }
                 }
@@ -241,19 +264,23 @@ module.exports = {
                         temp[line].push({day:i,today:true});
                         that.today=[line,temp[line].length-1];
                     } else {//默认
-                        // 1.判断begin和end的日期
-                        var options={day:i,today:false};
-                        if(that.begin!=undefined){
+                        var options={month:that.months[that.month],day:i,today:false};
+                        if(that.begin){
                             var beginSplit=that.begin.split(that.sep);
                             var beginTime=Number(new Date(parseInt(beginSplit[0]),parseInt(beginSplit[1])-1,parseInt(beginSplit[2])));
                             var thisTime=Number(new Date(that.year,that.month,i));
                             if(beginTime>thisTime)options.disabled=true;
                         }
-                        if(that.end!=undefined){
+                        if(that.end){
                             var endSplit=that.end.split(that.sep);
                             var endTime=Number(new Date(parseInt(endSplit[0]),parseInt(endSplit[1])-1,parseInt(endSplit[2])));
                             var thisTime=Number(new Date(that.year,that.month,i));
                             if(endTime<thisTime)options.disabled=true;
+                        }
+                        if(!that.begin&&!that.end){
+                            var thisTime=Number(new Date(that.year,that.month,i));
+                            var nowtime = Number(new Date(that.year,that.month,that.day));
+                            if(nowtime>thisTime)options.disabled=true;
                         }
                         temp[line].push(options);
                     }   
@@ -265,7 +292,7 @@ module.exports = {
                 }else if (i == lastDateOfMonth) {
                     var k = 1;
                     for (dow; dow < 6; dow++) {
-                        temp[line].push({day:k,disabled:true});
+                        temp[line].push({month:nextmonth,day:k,disabled:true});
                         k++;
                     }
                 }
@@ -329,22 +356,38 @@ module.exports = {
                     // that.show=false;   
                 }
             }
-            that.showmodals(e,date);
+            that.showmodals(e,"type",date);
 
         },
         //about plans 
+        randomClass:function(){
+            var classlist = ['seg-color1','seg-color2','seg-color3','seg-color4','seg-color5','seg-color6'];
+            return classlist[Math.round(Math.random()*5)];
+        },
         createplan:function(){
             var that = this;
+            console.log(that.whichDay);
             var data = {
                 tpid:new Date().getTime(),
                 type:that.current_type,
-                name:new Date().toLocaleDateString().replace(/\//g,''),
+                name:new Date(that.whichDay.split("/")[0],parseInt(that.whichDay.split("/")[1]-1),that.whichDay.split("/")[2]).pattern("yyyyMMdd"),
+                ref:new Date(that.whichDay.split("/")[0],parseInt(that.whichDay.split("/")[1]-1),that.whichDay.split("/")[2]).pattern("yyyyMMdd"),//以天为单位的时间戳键 用来在相应的日期显示
                 sections:[],
                 createAt:new Date()
             }
             fitDB.indexedDB.addfit(data,function(){
                 fitDB.indexedDB.getallfit(function(datas){
-                    console.log(datas)
+                    var obj = {};
+                    for(var d=0;d<datas.length;d++){
+                        if(!obj[datas[d].ref])obj[datas[d].ref] = [];
+                        obj[datas[d].ref].push(datas[d]);
+                    }
+                    localStorage.setItem("currenttpid",data.tpid);
+                    that.showModal.type = false;
+                    that.$parent.$set("plans",obj);
+                    setTimeout(function(){
+                        that.$router.go({name:"create"});
+                    })
                 })
             })
         },
@@ -473,7 +516,7 @@ module.exports = {
     background-color: #02212f;
     border: 1px solid #05464c;
     vertical-align: top;
-    padding: 0!important;
+    padding: 5px!important;
 }
 
 .calendar td:hover{

@@ -14,7 +14,7 @@ Vue.use(VueRouter)
 
 var router = new VueRouter({		
 	history:true,		
-	saveScrollPosition:true		
+	// saveScrollPosition:true		
 })
 
 router.map({
@@ -27,25 +27,22 @@ router.map({
 	// },
 	'/layout':{
 		name:'layout',
-		component:Layout,
-		subRoutes:{
-			'/create':{
-				name:'create',
-				component:LayoutDetail
-			},
-			'/detail':{
-				name:'detail',
-				component:LayoutDetail
-			}
-		}
+		component:Layout
+		// subRoutes:{
+			
+		// }
+	},
+	'/layout/create':{
+		name:'create',
+		component:LayoutDetail
+	},
+	'/layout/detail':{
+		name:'detail',
+		component:LayoutDetail
 	}
 })
 
 router.redirect({ '*': 'index' })
 
+
 router.start(App,'#app')
-// /* eslint-disable no-new */
-// new Vue({
-//   el: 'body',
-//   components: { App }
-// })

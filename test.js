@@ -14,9 +14,9 @@
                     'name': 'Wall Ball', // 环节名字
                     'type': 'movement', // 动作 or 休息 or 说明
                     // 仅当type=movement时才有，器材名字和icon url
-                    ‘equipment': {
+                    'equipment': {
                         'name': '器材名字',
-                        'icon': ‘http://img.leadfit.cn/...'
+                        'icon': 'http://img.leadfit.cn/...'
                     },
                     'reps': 10, // 重复次数
                     // 动作规格
