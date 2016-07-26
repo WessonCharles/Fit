@@ -32,11 +32,11 @@ router.map({
 			
 		// }
 	},
-	'/layout/create':{
+	'/create':{
 		name:'create',
 		component:LayoutDetail
 	},
-	'/layout/detail':{
+	'/detail':{
 		name:'detail',
 		component:LayoutDetail
 	}

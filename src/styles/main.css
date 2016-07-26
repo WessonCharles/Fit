@@ -15,9 +15,34 @@ a:focus{
   outline:none;
   blr:expression(this.onFocus=this.blur());
 }
+a.nounder{
+  text-decoration: none;
+}
+a.nounder:hover,a.nounder:focus{
+  text-decoration: none;
+}
 div,table,td,button,a{
   outline: none;
   blr:expression(this.onFocus=this.blur());
+}
+table.noborder,table.noborder tr,table.noborder td,.noborder th,table.noborder thead,table.noborder tbody{
+  border:1px solid transparent;
+}
+table.spectable td p{
+  height:25px;
+  line-height: 25px;
+}
+.nopadding{
+  padding:0!important;
+}
+.actionform fieldset {
+    padding: 10px 20px;
+}
+.replaceact legend,.actionform fieldset legend {
+    font-size: 18px;
+    margin: 0px -15px;
+    color: #849aa7;
+    border: none;
 }
 /**
  * Header
@@ -325,6 +350,7 @@ div,table,td,button,a{
     height: 30px;
     line-height: 30px;
     font-size: 22px;
+    font-weight: normal;
 }
 .segroup {
     float: left;
@@ -361,9 +387,16 @@ a.removeseg {
   margin:15px auto;
 }
 .actionlist .action,.actionlist .addaction{
-  background-color: #1d3a4a;
-  padding:10px;
-  margin-bottom: 15px;
+    background-color: #1d3a4a;
+    padding: 12px 15px;
+    font-size: 12px;
+    margin-bottom: 15px;
+    line-height: 22px;
+}
+.actionlist .action>.edit{
+  float: right;
+  color:#eee;
+  line-height: 22px;
 }
 /**
  * choice segment
@@ -378,7 +411,18 @@ a.removeseg {
   margin-left: 150px;
   padding:15px;
 }
-
+.edittitle,.editsegtype,.edittime{
+  float:left;
+  font-size: 12px;
+  margin: 5px;
+  line-height: 21px;
+}
+.min-height {
+    padding: 2px 5px;
+    height: 25px;
+    margin: 0 8px!important;
+    float: left;
+}
 /**
  * overwrite
  */
@@ -408,8 +452,49 @@ a.dropdown-toggle{
     border: none;
     border-radius: 20px;
 }
+.btn-group-sm>.btn, .btn-sm {
+    padding: 2px 15px;
+    font-size: 12px;
+    line-height: 1.5;
+}
 .btn-primary {
     color: #fff;
     background-color: #4990e2;
     border-color: none;
+}
+.col-xs-12 {
+  width: 100%!important;
+}
+.col-xs-11 {
+  width: 91.66666667%!important;
+}
+.col-xs-10 {
+  width: 83.33333333%!important;
+}
+.col-xs-9 {
+  width: 75%!important;
+}
+.col-xs-8 {
+  width: 66.66666667%!important;
+}
+.col-xs-7 {
+  width: 58.33333333%!important;
+}
+.col-xs-6 {
+  width: 50%!important;
+}
+.col-xs-5 {
+  width: 41.66666667%!important;
+}
+.col-xs-4 {
+  width: 33.33333333%!important;
+}
+.col-xs-3 {
+  width: 25%!important;
+}
+.col-xs-2 {
+  width: 16.66666667%!important;
+}
+.col-xs-1 {
+  width: 8.33333333%!important;
 }

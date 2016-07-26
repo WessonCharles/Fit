@@ -24,7 +24,7 @@
                     {{child.day}}
                     <div class="td-segment" v-if="plans[year+child.month+(child.day<10?'0'+child.day:child.day)]">
                         <div class="td-inner-segment">
-                            <p v-for="seg in plans[year+child.month+(child.day<10?'0'+child.day:child.day)]" class="segment {{randomClass()}}" data-tpid="{{seg.tpid}}">{{seg.name}}</p>
+                            <p v-for="seg in plans[year+child.month+(child.day<10?'0'+child.day:child.day)]" class="segment {{randomClass()}}" @click.stop.prevent="godetail(seg.tpid)" data-tpid="{{seg.tpid}}">{{seg.name}}</p>
                         </div>
                     </div>
                     </td>
@@ -372,6 +372,8 @@ module.exports = {
                 type:that.current_type,
                 name:new Date(that.whichDay.split("/")[0],parseInt(that.whichDay.split("/")[1]-1),that.whichDay.split("/")[2]).pattern("yyyyMMdd"),
                 ref:new Date(that.whichDay.split("/")[0],parseInt(that.whichDay.split("/")[1]-1),that.whichDay.split("/")[2]).pattern("yyyyMMdd"),//以天为单位的时间戳键 用来在相应的日期显示
+                section_total:0,//环节总数
+                movement_total:0,//动作总数
                 sections:[],
                 createAt:new Date()
             }
@@ -391,6 +393,13 @@ module.exports = {
                 })
             })
         },
+        godetail:function(id){
+            var that = this;
+            localStorage.setItem("currenttpid",id);
+            setTimeout(function(){
+                that.$router.go({name:"detail"});
+            })
+        }
     },
     components:{
         modal

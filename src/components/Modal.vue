@@ -24,8 +24,9 @@
         </slot>
         <slot name="modal-footer">
           <div class="modal-footer">
-            <button type="button" v-if="iscancel" class="btn btn-default" @click="close">{{ cancelText }}</button>
-            <button type="button" v-if="isok" class="btn btn-primary" @click="callback">{{ okText }}</button>
+            <button type="button" v-if="iscancel=='true'" class="btn btn-default" @click="close">{{ cancelText }}</button>
+            <button type="button" class="btn btn-primary" v-if="btns" v-for="b in btns" @click="b.func">{{b.text}}</button>
+            <button type="button" v-if="isok=='true'" class="btn btn-primary" @click="callback">{{ okText }}</button>
           </div>
         </slot>
       </div>
@@ -54,6 +55,10 @@ import coerceBoolean from '../utils/coerceBoolean.js'
       iscancel:{
         type:String,
         default:true
+      },
+      btns:{
+        type:Object,
+        default:null
       },
       title: {
         type: String,

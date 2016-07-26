@@ -3,40 +3,41 @@
     <p class="calendartitle">{{currentDate}}</p>
     <div class="row">
       <div class="col-xs-5 segmentdetail">
-        <h4>编辑</h4>
-        <div class="seglist">
+        <h4>编辑 </h4>
+        <div class="seglist" v-for="sec in plan.sections">
           <div class="segheader">
             <h4>
-              <span style="float:left">title</span>
+              <span style="float:left" v-if="!edittitle">{{sec.name}}</span>
+              <input style="float:left;width:60px;" class="form-control min-height" v-if="edittitle" v-model="sec.name" @keyup.enter="updatesec($event,sec.secid,{'name':sec.name});">
+              <i class="fa fa-pencil edittitle" v-if="!edittitle" @click="edittitle = !edittilte"></i>
               <div class="segroup">
                 <div class="segchild">
-                  <input type="text" class="form-control min-height">
+                  <input type="text" placeholder="计时方式" v-if="!editsegtype" class="form-control min-height">
+                  <span v-if="editsegtype"></span>
                 </div>
+                <i class="fa fa-pencil editsegtype" v-if="editsegtype" @click="editsegtype=false;"></i>
                 <div class="segchild">
-                  <input type="text" class="form-control min-height">
+                  <input type="text" placeholder="时长" v-if="!edittime" class="form-control min-height">
+                  <span v-if="edittime"></span>
                 </div>
+                <i class="fa fa-pencil edittime" v-if="edittime" @click="edittime = false;"></i>
               </div>
-              <a class="removeseg">删除环节</a>
+              <a class="removeseg" @click="removeseg(sec.secid)">删除环节</a>
               <div class="clearfix"></div>
             </h4>
             
           </div>
           <div class="actionlist">
-            <div class="action">
-              <span>aaa</span>
+            <div class="action {{actiontype(mov.action.type)}}" v-for="mov in sec.movements">
+              <i class="fa fa-pencil edit" @click.stop.prevent="seteditaction(mov.tmid,sec.secid)"></i>
+              <span>{{mov.action.name}}</span><span style="margin-left:30px;" class="replaceaction" v-if="mov.replaceAction">替换动作：{{mov.replaceAction.name}}</span>
             </div>
-            <div class="action">
-              <span>bbb</span>
+            <div class="addaction" v-if="showModal.addaction">
+              <span style="float:left">添加动作</span><input style="width:55%;margin-top:-2px!important;" type="text" class="form-control min-height" v-model="nacname"> <button class="btn btn-sm btn-primary" @click="addactiontoseg($event,sec.secid)">添加</button> <a class="nounder" @click="showModal.addaction = false;">取消</a>
             </div>
-            <div class="action">
-              <span>ccc</span>
-            </div>
-            <!-- <div class="addaction">
-              
-            </div> -->
           </div>
           <div class="operation">
-            <a class="addaction"><i class="fa fa-plus"></i>添加动作</a>
+            <a class="addaction" @click="showModal.addaction = true"><i class="fa fa-plus"></i>添加动作</a>
             <a class="addmark"><i class="fa fa-rotate-left"></i>修改循环</a>
           </div>
         </div>
@@ -65,7 +66,7 @@
 
   <modal title="选择模式" iscancel="false" isok="true" :callback="addseg" ok-text="添加" effect="zoom" :show.sync="showModal.choiceseg">
         <div class="modal-body" slot="modal-body">
-            <tabs :stack="true" :active="0">
+            <tabs :stack="true" :active="0" :select="activeseg">
               <tab header="FOR TIME">
                   <h3>FOR TIME</h3>
                   <p>描述描述</p>
@@ -108,7 +109,180 @@
               </tab>
             </tabs>  
         </div>
-    </modal>   
+  </modal>  
+  <modal title="动作设置" class="actionform" iscancel="false" isok="true" :callback="updateactions" :btns="btns" ok-text="完成" effect="zoom" :show.sync="showModal.updateaction">
+        <div class="modal-body" slot="modal-body">
+          <fieldset>
+            <h5 style="margin-top:0;">
+              动作名:<input class="form-control col-xs-8 min-height" v-model="editingactionobj.action.name"></input>
+              <div class="clearfix"></div>
+            </h5>
+            <div class="form-group">
+              <label class="col-xs-2">重复</label>
+              <div class="col-xs-10" style="line-height:25px;">
+                <input type="text" class="form-control col-xs-9 min-height" v-model="editingactionobj.action.reps">次
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <div class="form-group">
+              <div class="col-xs-4"><input type="radio" name="spec" value="Rx/Scale" v-model="specad">Rx/Scale </div>
+              <div class="col-xs-4"><input type="radio" name="spec" value="L1-L4" v-model="specad">L1-L4 </div>
+              <div class="col-xs-4"><input type="checkbox" name="sex" v-model="sex">男女分别制定</div>
+              <div class="clearfix"></div>
+            </div>
+            <div class="form-group">
+              <label class="col-xs-2">训练要求</label>
+              <div class="col-xs-10">
+                <table class="noborder spectable">
+                  <thead>
+                    <tr>
+                      <th style="padding: 10px;text-align:center;">级别</th>
+                      <th style="padding: 10px;text-align:center;">重量</th>
+                      <th style="padding: 10px;text-align:center;">高度</th>
+                      <td style="padding: 10px;text-align:center;"></td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="spe in specs">
+                      <td>
+                        <p><input type="text" class="form-control col-xs-6 min-height" v-model="spe.name"></p>
+                      </td>
+                      <td>
+                        <p v-if="!sex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.lb">lb</p>
+                        <div class="col-xs-12 nopadding" v-if="sex">
+                          <div class="col-xs-6 nopadding">
+                            <label class="col-xs-3 nopadding">男</label>
+                            <input type="text" class="form-control col-xs-5 min-height" v-model="spe.male.lb">
+                          </div>
+                          <div class="col-xs-6 nopadding">
+                            <label class="col-xs-3 nopadding">女</label>
+                            <input type="text" class="form-control col-xs-5 min-height" v-model="spe.female.lb">lb
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <p v-if="!sex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.in">in</p>
+                        <div class="col-xs-12 nopadding" v-if="sex">
+                          <div class="col-xs-6 nopadding">
+                            <label class="col-xs-3 nopadding ">男</label>
+                            <input type="text" class="form-control col-xs-5 min-height" v-model="spe.male.in">
+                          </div>
+                          <div class="col-xs-6 nopadding">
+                            <label class="col-xs-3 nopadding">女</label>
+                            <input type="text" class="form-control col-xs-5 min-height" v-model="spe.female.in">in
+                          </div>
+                        </div>
+                      </td>
+                      <td><p v-if="$index!=0"><i class="fa fa-trash" @click="dupspec($index)"></i></p></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+            
+            <p><a class="pull-right" @click="addspec()">添加等级</a></p>
+          </fieldset>
+          <fieldset>
+            <div class="form-group">
+              <label class="col-xs-2">记录成绩</label>
+              <div class="col-xs-10">
+                <div class="col-xs-4"><input type="radio" value="amount" v-model="score">重量 </div>
+                <div class="col-xs-4"><input type="radio" value="times" v-model="score">时间</div>
+              </div> 
+              <div class="clearfix"></div>
+            </div> 
+          </fieldset>
+ 
+          <div class="replaceact" v-if="showreplaceform">
+            <hr>
+            <legend style="margin:0;">替换动作</legend>
+            <fieldset>
+              <h5 style="margin-top:0;">动作名：<input type="text" class="form-control col-xs-9 min-height pull-right" v-model="editingactionobj.replaceAction.name">
+                  <div class="clearfix"></div>
+              </h5>
+              <div class="form-group">
+                <label class="col-xs-2">重复</label>
+                <div class="col-xs-10" style="line-height:25px;">
+                  <input type="text" class="form-control col-xs-9 min-height" v-model="editingactionobj.replaceAction.reps">次
+                </div>
+                <div class="clearfix"></div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <div class="form-group">
+                <div class="col-xs-4"><input type="radio" name="spec" value="Rx/Scale" v-model="replspecad">Rx/Scale </div>
+                <div class="col-xs-4"><input type="radio" name="spec" value="L1-L4" v-model="replspecad">L1-L4 </div>
+                <div class="col-xs-4"><input type="checkbox" name="replsex" v-model="replsex">男女分别制定 </div>
+                <div class="clearfix"></div>
+              </div>
+              <div class="form-group">
+                <label class="col-xs-2">训练要求</label>
+                <div class="col-xs-10">
+                   <table class="noborder spectable">
+                    <thead>
+                      <tr>
+                        <th style="padding: 10px;text-align:center;">级别</th>
+                        <th style="padding: 10px;text-align:center;">重量</th>
+                        <th style="padding: 10px;text-align:center;">高度</th>
+                        <td style="padding: 10px;text-align:center;"></td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="spe in replspecs">
+                        <td>
+                          <p><input type="text" class="form-control col-xs-6 min-height" v-model="spe.name"></p>
+                        </td>
+                        <td>
+                          <p v-if="!replsex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.man.lb">lb</p>
+                          <div class="col-xs-12 nopadding" v-if="replsex">
+                            <div class="col-xs-6 nopadding">
+                              <label class="col-xs-3 nopadding">男</label>
+                              <input type="text" class="form-control col-xs-5 min-height" v-model="spe.male.lb">
+                            </div>
+                            <div class="col-xs-6 nopadding">
+                              <label class="col-xs-3 nopadding">女</label>
+                              <input type="text" class="form-control col-xs-5 min-height" v-model="spe.female.lb">lb
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <p v-if="!replsex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.man.in">in</p>
+                          <div class="col-xs-12 nopadding" v-if="replsex">
+                            <div class="col-xs-6 nopadding">
+                              <label class="col-xs-3 nopadding ">男</label>
+                              <input type="text" class="form-control col-xs-5 min-height" v-model="spe.male.in">
+                            </div>
+                            <div class="col-xs-6 nopadding">
+                              <label class="col-xs-3 nopadding">女</label>
+                              <input type="text" class="form-control col-xs-5 min-height" v-model="spe.female.in">in
+                            </div>
+                          </div>
+                        </td>
+                        <td><p v-if="$index!=0"><i class="fa fa-trash" @click="duprepl($index)"></i></p></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+             
+              <p><a class="pull-right" @click="addrepl()">添加等级</a></p>
+            </fieldset>
+            <fieldset>
+              <div class="form-group">
+                <label class="col-xs-2">记录成绩</label>
+                <div class="col-xs-10">
+                  <input type="radio" value="amount" v-model="replscore">重量 
+                  <input type="radio" value="times" v-model="replscore">时间
+                </div>
+                <div class="clearfix"></div>  
+              </div>  
+            </fieldset>
+          </div>  
+        </div>
+  </modal>       
 </template>
 
 <script>
@@ -125,7 +299,51 @@ export default {
       plan:{},
       showModal:{
         choiceseg:false,//查找环节
-      }
+        addaction:false,//创建动作
+        updateaction:false//编辑动作
+      },
+
+      showreplaceform:false,
+      btns:{
+        "replaceaction":{
+          text:"添加替换动作",
+          func:function(){}
+        },
+
+      },
+
+      selectedseg:'',
+      edittitle:false,
+      editsegtype:false,
+      edittime:false,
+      nacname:'',//新建动作名称
+
+      editingsec:'',//正在编辑的环节
+      editingaction:'',//正在编辑的动作
+      editingactionobj:{
+        action:{},
+        replaceAction:{}
+      },//正在编辑的动作详细
+
+      specs:[
+      {name:"RX",man:{
+        lb:0,
+        in:0
+      }}],
+      replspecs:[
+      {name:"RX",man:{
+        
+        lb:0,
+        in:0
+      }}],
+      actionparams:{},//编辑的动作字段
+      showreplaceform:false,
+      specad:"Rx/Scale",
+      replspecad:"Rx/Scale",
+      sex:false,
+      replsex:false,
+      score:false,
+      replscore:false,
     }
   },
   created(){
@@ -134,7 +352,6 @@ export default {
     var week = "周" + "日一二三四五六".split("")[nd.getDay()];
     var date = new Date().toLocaleDateString();
     t.currentDate = week+" "+date;
-
   },
   components: {
     calendar,
@@ -143,14 +360,309 @@ export default {
     tab
   },
   ready(){
-    var id = localStorage.getItem("currenttpid");
-    fitDB.indexedDB.getfitbyid(id,function(obj){
-      console.log(obj)
-    }) 
+    var that =this;
+    fitDB.indexedDB.open(function(){
+      var id = localStorage.getItem("currenttpid");
+      fitDB.indexedDB.getfitbyid(id,function(obj){
+        that.plan = obj;
+      });
+    });
+
+    that.$watch("sex",function(val){
+      if(val){
+        that.specs = [{
+          name:"RX",
+          male:{
+            lb:0,
+            in:0
+          },
+          famale:{
+            lb:0,
+            in:0
+          }
+        }]
+      }
+    })
+
+    that.$watch("replsex",function(val){
+      console.log(val)
+      if(val){
+        that.replspecs = [{
+          name:"RX",
+          male:{
+            lb:0,
+            in:0
+          },
+          female:{
+            lb:0,
+            in:0
+          }
+        }]
+      }
+    })
+
+    that.btns["replaceaction"].func = function(){
+      that.showreplaceform = !that.showreplaceform;
+      that.btns["replaceaction"].text = that.showreplaceform?"取消替换动作":"添加替换动作";
+    } 
   },
   methods:{
-    addseg(){//.nav-stacked
+    addseg(){//增加环节
+      var that = this;
+      var id = localStorage.getItem("currenttpid");
+      console.log(id)
+      fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
+        /**
+         * 主要方法
+         */
+        obj.sections.push({
+            'secid':new Date().getTime(),
+            'name':'Wod'+(obj.sections.length+1),
+            'type': that.selectedseg,
+            'movements': []
+        });
+        obj.sections.section_total+=1;
+        console.log(obj)
+        /**结束**/
+        fitDB.indexedDB.updatefit(id,obj,function(newobj){
+          that.showModal.choiceseg = false;
+          that.plan = newobj;
+        })
+      })
+    },
+    updatesec(event,secid,ob){//更新环节字段
+      var that = this;
+      console.log("111")
+      that.edittitle=false;
+      var id = localStorage.getItem("currenttpid");
+      fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
+         /**
+         * 主要方法
+         */
+        for(var i=0;i<obj.sections.length;i++){
+          if(secid == obj.sections[i].secid){
+            for(var o in ob){
+              if(o.indexOf("action.")>-1){
+                obj.sections[i].action[o.split("action.")[1]] = ob[o];
+              }else if(o.indexOf("pattern.")>-1){
+                obj.sections[i].pattern[o.split("pattern.")[1]] = ob[o];
+              }else if(o.indexOf("replaceAction.")>-1){
+                obj.sections[i].replaceAction[o.split("replaceAction.")[1]] = ob[o];
+              }else if(o.indexOf("score.")>-1){
+                obj.sections[i].score[o.split("score.")[1]] = ob[o];
+              }else{
+                obj.sections[i][o] = ob[o];
+              }
+              
+            }
+            break;
+          }
+        }
+        /**结束**/
+        fitDB.indexedDB.updatefit(id,obj,function(newobj){
+          that.plan = newobj;
+        })
+      })
+    },
+    removeseg(id){//删除环节
+      var that = this;
+      var id = localStorage.getItem("currenttpid");
+      fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
+         /**
+         * 主要方法
+         */
+        for(var i=0;i<obj.sections.length;i++){
+          if(secid == obj.sections[i].secid){
+            obj.sections.splice(i,1);
+            obj.section_total-=1;
+            break;
+          }
+        }
+        /**结束**/
+        fitDB.indexedDB.updatefit(id,obj,function(newobj){
+          that.plan = newobj;
+        })
+      })
+    },
+    actiontype(type){//根据action.type的不同返回不同的类
+      var types = {
+        "movement":"movement",
+        "rest":"rest",
+        "intro":"intro"
+      }
+      return types[type];
+    },
+    addactiontoseg(event,secid){//增加动作 简单的增加名字
+      var that = this;
+      var id = localStorage.getItem("currenttpid");
+      fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
+         /**
+         * 主要方法
+         */
+        for(var i=0;i<obj.sections.length;i++){
+          if(secid == obj.sections[i].secid){
+            obj.sections[i].movements.push({
+              "tmid":new Date().getTime(),
+              "sortid":obj.sections[i].movements.length,
+              "action":{
+                "name":that.nacname,
+                "type":"movement"
+              },
+              "replaceAction":{},
+              "pattern":{}
+            })
+            obj.movement_total+=1;
+            break;
+          }
+        }
+        /**结束**/
+        fitDB.indexedDB.updatefit(id,obj,function(newobj){
+          that.showModal.addaction = false;
+          that.showModal.updateaction = false;
+          that.nacname = '';
+          that.plan = newobj;
+        })
+      })
+    },
+    updateactions(){
+      var that = this;
+      var id = localStorage.getItem("currenttpid");
+      var cid = that.editingsec;
+      var aid = that.editingaction;
+      var movement = {};//根绝actionparams来组织
+      movement["action"] = {
+        name:that.editingactionobj.action.name,
+        reps:that.editingactionobj.action.reps,
+        type:that.editingactionobj.action.type,
+        spec:that.specs,
+        score:that.score
+      };
+      movement["replaceAction"] = {
+        name:that.editingactionobj.replaceAction.name,
+        reps:that.editingactionobj.replaceAction.reps,
+        type:"movement",
+        spec:that.replspecs,
+        score:that.replscore      
+      }
 
+      fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
+         /**
+         * 主要方法
+         */
+        for(var i=0;i<obj.sections.length;i++){
+          if(cid == obj.sections[i].secid){
+            for(var j =0;j<obj.sections[i].movements.length;j++){
+              if(aid = obj.sections[i].movements[j].tmid){
+                obj.sections[i].movements[j].action = movement["action"];
+                obj.sections[i].movements[j].replaceAction = movement["replaceAction"];
+                break;
+              }
+            }
+          }
+        }
+        /**结束**/
+        fitDB.indexedDB.updatefit(id,obj,function(newobj){
+          that.showModal.addaction = false;
+          that.nacname = '';
+          that.plan = newobj;
+        })
+      })
+    },
+    activeseg(obj){
+      this.selectedseg = obj.header;
+    },
+    seteditaction(tmid,secid){
+      var that = this;
+      that.editingaction = tmid;
+      that.editingsec = secid;
+      that.showModal.updateaction = true;
+
+      var id = localStorage.getItem("currenttpid");
+      var cid = that.editingsec;
+      var aid = that.editingaction;
+
+
+      fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
+         /**
+         * 主要方法
+         */
+        for(var i=0;i<obj.sections.length;i++){
+          if(cid == obj.sections[i].secid){
+            for(var j =0;j<obj.sections[i].movements.length;j++){
+              if(aid = obj.sections[i].movements[j].tmid){
+                that.editingactionobj = obj.sections[i].movements[j];
+                console.log(that.editingactionobj)
+                if(!that.editingactionobj.action){
+                  that.editingactionobj.action = {};
+                }else{
+                  if(that.editingactionobj.action.specs&&that.editingactionobj.action.specs.length>0){
+                    that.specs = that.editingactionobj.action.specs;
+                  }
+                }
+                if(!that.editingactionobj.replaceAction){
+                  that.editingactionobj.replaceAction = {};
+                }else{
+                  if(that.editingactionobj.replaceAction.specs&&that.editingactionobj.replaceAction.specs.length>0){
+                    that.replspecs = that.editingactionobj.replaceAction.specs;
+                  }
+                }
+                break;
+              }
+            }
+          }
+        }
+      })
+    },
+    addspec(){
+      console.log("111")
+      var that = this;
+      var obj = that.sex?{
+        name:"L"+that.specs.length,
+        man:{
+          lb:0,
+          in:0
+        }
+      }:{
+        name:"L"+that.specs.length,
+        male:{
+          lb:0,
+          in:0
+        },
+        female:{
+          lb:0,
+          in:0
+        }
+      }
+      that.specs.push(obj)
+    },
+    addrepl(){
+      var that = this;
+      var obj = that.replsex?{
+        name:"L"+that.replspecs.length,
+        man:{
+          lb:0,
+          in:0
+        }
+      }:{
+        name:"L"+that.replspecs.length,
+        male:{
+          lb:0,
+          in:0
+        },
+        female:{
+          lb:0,
+          in:0
+        }
+      }
+      that.replspecs.push(obj)
+    },
+    dupspec(i){
+      var that = this;
+      that.specs.splice(i,1);
+    },
+    duprepl(i){
+      var that = this;
+      that.replspecs.splice(i,1);      
     },
   }
 }

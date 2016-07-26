@@ -45,6 +45,10 @@
       stack:{
         type:Boolean,
         default:false
+      },
+      select:{
+        type: Function,
+        default() {}
       }
     },
     data() {
@@ -52,9 +56,13 @@
         renderData: []
       }
     },
+    ready(){
+      this.select({index:0,el:this.renderData[0]});
+    },
     methods: {
         handleTabListClick(index, el) {
-            if (!el.disabled) this.active = index
+            this.select({index:index,el:el});
+            if (!el.disabled) this.active = index;
         }
     }
   }
