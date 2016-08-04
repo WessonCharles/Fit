@@ -32,6 +32,10 @@ table.spectable td p{
   height:25px;
   line-height: 25px;
 }
+table.viewaction td{
+  padding:4px 8px!important;
+  color:rgb(177,196,204);
+}
 .nopadding{
   padding:0!important;
 }
@@ -326,6 +330,10 @@ table.spectable td p{
     color: #849aa7;
     padding: 15px;
     font-size: 14px;
+    margin-bottom: 25px;
+}
+.contenter .seglist{
+  margin-bottom: 0;
 }
 .segadd{
     padding: 15px;
@@ -345,7 +353,7 @@ table.spectable td p{
     margin: 0 0 5px 0;
 }
 .segheader h4 {
-    color:#cdcdcd;
+    color:rgb(235,245,252);
     margin: 0;
     height: 30px;
     line-height: 30px;
@@ -383,7 +391,7 @@ a.removeseg {
     float: right;
     font-size: 14px;
 }
-.actionlist{
+.actionlist,.actionviewlist{
   margin:15px auto;
 }
 .actionlist .action,.actionlist .addaction{
@@ -397,6 +405,47 @@ a.removeseg {
   float: right;
   color:#eee;
   line-height: 22px;
+}
+.actionviewlist {
+    border: 1px solid rgb(69,143,229);
+    position: relative;
+    padding-top: 20px;
+}
+.actionviewlist:before {
+    content: '循环模式';
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: rgb(69,143,229);
+    color: #fff;
+    border-radius: 15px;
+    left: 40%;
+    position: absolute;
+    top: -15px;
+}
+.sectionreps {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #458fe5;
+    color: #fff;
+    border-radius: 30px;
+    position: absolute;
+    bottom: -23px;
+    width: 75px;
+    text-align: center;
+    margin: 0 auto;
+    border: 8px solid #03202e;
+    left: 40%;
+}
+.sectionreps:after {
+    content: '＜';
+    position: absolute;
+    right: -24px;
+    margin-top: -8px;
+    font-size: 24px;
+    color: #458fe5;
+}
+.text-red{
+  color:#d7244c;
 }
 /**
  * choice segment

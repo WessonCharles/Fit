@@ -30,7 +30,7 @@
           <div class="actionlist">
             <div class="action {{actiontype(mov.action.type)}}" v-for="mov in sec.movements">
               <i class="fa fa-pencil edit" @click.stop.prevent="seteditaction(mov.tmid,sec.secid)"></i>
-              <span>{{mov.action.name}}</span><span style="margin-left:30px;" class="replaceaction" v-if="mov.replaceAction">替换动作：{{mov.replaceAction.name}}</span>
+              <span style="color:#fff;font-size:18px;">{{mov.action.name}}</span><span style="margin-left:30px;" class="replaceaction" v-if="mov.replaceAction">替换动作：{{mov.replaceAction.name}}</span>
             </div>
             <div class="addaction" v-if="showModal.addaction">
               <span style="float:left">添加动作</span><input style="width:55%;margin-top:-2px!important;" type="text" class="form-control min-height" v-model="nacname"> <button class="btn btn-sm btn-primary" @click="addactiontoseg($event,sec.secid)">添加</button> <a class="nounder" @click="showModal.addaction = false;">取消</a>
@@ -49,7 +49,91 @@
       <div class="col-xs-5 segmentaction">
         <h4>预览</h4>
         <div class="contenter">
-          
+          <div class="seglist" v-for="sec in plan.sections">
+            <div class="segheader">
+              <h4>
+                <span style="float:left" v-if="!edittitle">{{sec.name}} <small style="margin-left:15px;color:#fff">(<b style="margin:0 2px;">{{sec.type}}</b>)</small></span>
+                <div class="clearfix"></div>
+              </h4>
+            </div>
+            <div class="actionviewlist" v-show="$index==0">
+              <div class="action {{actiontype(mov.action.type)}}" v-for="mov in sec.movements">
+                <div class="col-xs-12">
+                  <table class="viewaction table noborder">
+                    <thead>
+                      <tr>
+                        <td colspan="10"><span style="color:#fff;font-size:18px;margin-right:15px;">{{mov.action.name}}</span> <strong><a class="text-red">{{mov.action.reps||'0'}}</a>次</strong></td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="spe in mov.action.spec" v-if="!spe.male">
+                        <td>等级：{{spe.name}}</td>
+                        <td>所有人</td>
+                        <td>
+                          <span v-if="spe.man.lb">重量- <a class="text-red">{{spe.man.lb}}</a></span><span v-if="spe.man.in">高度-<a class="text-red">{{spe.man.in}}</a></span>
+                        </td>
+                      </tr>
+                      <tr v-for="spe in mov.action.spec" v-if="spe.male">
+                        <td>等级：{{spe.name}}</td>
+                        <td>男</td>
+                        <td>
+                          <span v-if="spe.male.lb">重量-<a class="text-red">{{spe.male.lb}}</a></span><span v-if="spe.male.in">高度-<a class="text-red">{{spe.male.in}}</a></span>
+                        </td>
+                        <td></td>
+                        <td>女</td>
+                        <td>
+                          <span v-if="spe.female.lb">重量-<a class="text-red">{{spe.female.lb}}</a></span><span v-if="spe.female.in">高度-<a class="text-red">{{spe.female.in}}</a></span>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="10"><b>成绩记录方式：</b><strong>{{mov.action.score=='amount'?'数量':'时间'}}</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                  <p  v-if="mov.replaceAction&&mov.replaceAction.name">替换动作</p>
+                  <table  class="viewaction table noborder" v-if="mov.replaceAction&&mov.replaceAction.name">
+                    <thead>
+                      <tr>
+                        <td colspan="10"><span style="color:#fff;font-size:18px;margin-right:15px;">{{mov.replaceAction.name}}</span> <strong><a class="text-red">{{mov.replaceAction.reps||'0'}}</a>次</strong></td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="spe in mov.replaceAction.spec" v-if="!spe.male">
+                        <td>等级：{{spe.name}}</td>
+                        <td>所有人</td>
+                        <td>
+                          <span v-if="spe.man.lb">重量-<a class="text-red">{{spe.man.lb}}</a></span><span v-if="spe.man.in">高度-<a class="text-red">{{spe.man.in}}</a></span>
+                        </td>
+                      </tr>
+                      <tr v-for="spe in mov.replaceAction.spec" v-if="spe.male">
+                        <td>等级：{{spe.name}}</td>
+                        <td>男</td>
+                        <td>
+                          <span v-if="spe.male.lb">重量-<a class="text-red">{{spe.male.lb}}</a></span><span v-if="spe.male.in">高度-<a class="text-red">{{spe.male.in}}</a></span>
+                        </td>
+                        <td></td>
+                        <td>女</td>
+                        <td>
+                          <span v-if="spe.female.lb">重量-<a class="text-red">{{spe.female.lb}}</a></span><span v-if="spe.female.in">高度-<a class="text-red">{{spe.female.in}}</a></span>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="10"><b>成绩记录方式：</b><strong>{{mov.replaceAction.score=='amount'?'数量':'时间'}}</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+              <div class="sectionreps">
+                2,4,6
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-xs-2 segmentchat">
@@ -114,7 +198,10 @@
         <div class="modal-body" slot="modal-body">
           <fieldset>
             <h5 style="margin-top:0;">
-              动作名:<input class="form-control col-xs-8 min-height" v-model="editingactionobj.action.name"></input>
+              <span class="col-xs-2">动作名:</span>
+              <div class="col-xs-10">
+                <input class="form-control col-xs-9 min-height" v-model="editingactionobj.action.name">
+              </div>
               <div class="clearfix"></div>
             </h5>
             <div class="form-group">
@@ -149,7 +236,7 @@
                         <p><input type="text" class="form-control col-xs-6 min-height" v-model="spe.name"></p>
                       </td>
                       <td>
-                        <p v-if="!sex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.lb">lb</p>
+                        <p v-if="!sex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.man.lb">lb</p>
                         <div class="col-xs-12 nopadding" v-if="sex">
                           <div class="col-xs-6 nopadding">
                             <label class="col-xs-3 nopadding">男</label>
@@ -162,7 +249,7 @@
                         </div>
                       </td>
                       <td>
-                        <p v-if="!sex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.in">in</p>
+                        <p v-if="!sex"><input type="text" class="form-control col-xs-8 min-height" v-model="spe.man.in">in</p>
                         <div class="col-xs-12 nopadding" v-if="sex">
                           <div class="col-xs-6 nopadding">
                             <label class="col-xs-3 nopadding ">男</label>
@@ -199,8 +286,12 @@
             <hr>
             <legend style="margin:0;">替换动作</legend>
             <fieldset>
-              <h5 style="margin-top:0;">动作名：<input type="text" class="form-control col-xs-9 min-height pull-right" v-model="editingactionobj.replaceAction.name">
-                  <div class="clearfix"></div>
+              <h5 style="margin-top:0;">
+                <span class="col-xs-2">动作名：</span>
+                <div class="col-xs-10">
+                    <input type="text" class="form-control col-xs-9 min-height" v-model="editingactionobj.replaceAction.name">
+                </div>
+                <div class="clearfix"></div>
               </h5>
               <div class="form-group">
                 <label class="col-xs-2">重复</label>
@@ -274,8 +365,8 @@
               <div class="form-group">
                 <label class="col-xs-2">记录成绩</label>
                 <div class="col-xs-10">
-                  <input type="radio" value="amount" v-model="replscore">重量 
-                  <input type="radio" value="times" v-model="replscore">时间
+                  <div class="col-xs-4"><input type="radio" value="amount" v-model="replscore">重量</div> 
+                  <div class="col-xs-4"><input type="radio" value="times" v-model="replscore">时间</div>
                 </div>
                 <div class="clearfix"></div>  
               </div>  
@@ -312,7 +403,7 @@ export default {
 
       },
 
-      selectedseg:'',
+      selectedseg:'FOR TIME',
       edittitle:false,
       editsegtype:false,
       edittime:false,
@@ -410,7 +501,7 @@ export default {
     addseg(){//增加环节
       var that = this;
       var id = localStorage.getItem("currenttpid");
-      console.log(id)
+      console.log(that.selectedseg)
       fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
         /**
          * 主要方法
@@ -464,7 +555,7 @@ export default {
         })
       })
     },
-    removeseg(id){//删除环节
+    removeseg(secid){//删除环节
       var that = this;
       var id = localStorage.getItem("currenttpid");
       fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
@@ -544,6 +635,7 @@ export default {
         spec:that.replspecs,
         score:that.replscore      
       }
+      console.log(movement)
 
       fitDB.indexedDB.getfitbyid(id,function(obj){//先获取训练计划，再更新循环
          /**
@@ -569,7 +661,8 @@ export default {
       })
     },
     activeseg(obj){
-      this.selectedseg = obj.header;
+      console.log(obj)
+      this.selectedseg = obj.el.header;
     },
     seteditaction(tmid,secid){
       var that = this;
@@ -618,12 +711,6 @@ export default {
       var that = this;
       var obj = that.sex?{
         name:"L"+that.specs.length,
-        man:{
-          lb:0,
-          in:0
-        }
-      }:{
-        name:"L"+that.specs.length,
         male:{
           lb:0,
           in:0
@@ -632,7 +719,15 @@ export default {
           lb:0,
           in:0
         }
-      }
+      }:{
+        name:"L"+that.specs.length,
+        man:{
+          lb:0,
+          in:0
+        }
+      };
+      console.log(that)
+      console.log(obj)
       that.specs.push(obj)
     },
     addrepl(){

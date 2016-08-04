@@ -105,7 +105,7 @@
                         
                         'type': 'fix', // var, tabata, emom, amrap
                         'define': { // fix
-                            rounds: 3,
+                            rounds: 3,//轮
                             reps: 15
                         },
                         'define': [ // var
@@ -114,9 +114,9 @@
                             9
                         ],
                         'define': { // tabata
-                            execute: 40,
-                            rest: 20,
-                            rounds: 8
+                            execute: 40,//运动
+                            rest: 20,//休息
+                            rounds: 8//共计轮
                         },
                         'define': { // emom
                             execute: 40,
