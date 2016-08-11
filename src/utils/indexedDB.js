@@ -158,7 +158,7 @@
 			
 			if (!result){
 				console.log("结束游标");
-				callback(datas);
+				callback&&callback(datas);
 				return;
 			}
 			datas.push(result.value);

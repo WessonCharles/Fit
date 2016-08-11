@@ -20,7 +20,7 @@ var router = new VueRouter({
 router.map({
 	'/':{
 		name:'index',
-		components:Home
+		component:Home
 	},
 	// '/login':{
 	// 	components:Hello
@@ -32,11 +32,11 @@ router.map({
 			
 		// }
 	},
-	'/layout/create':{
+	'/create':{
 		name:'create',
 		component:LayoutDetail
 	},
-	'/layout/detail':{
+	'/detail':{
 		name:'detail',
 		component:LayoutDetail
 	}
