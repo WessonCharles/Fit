@@ -2,7 +2,7 @@
   <div id="wrapper">
         <div class="header">
             <div class="logo">
-              <a href="/"><img src="./assets/logo.png" alt="今日训练"></a>
+              <a v-link="'/'"><img src="./assets/logo.png" alt="今日训练"></a>
             </div>
             <div class="rightmenu">
               <div class="userinfo">
@@ -70,6 +70,9 @@ export default {
     return {
       url:window.location.pathname
     }
+  },
+  ready(){
+    // this.$router.go({name:"index"})
   },
   methods:{
     seturl(e,url){

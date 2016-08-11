@@ -655,6 +655,7 @@ export default {
         /**结束**/
         fitDB.indexedDB.updatefit(id,obj,function(newobj){
           that.showModal.addaction = false;
+          that.showModal.updateaction = false;
           that.nacname = '';
           that.plan = newobj;
         })

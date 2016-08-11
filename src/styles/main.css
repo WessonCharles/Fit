@@ -318,7 +318,7 @@ table.viewaction td{
   height:100%;
   position: relative;
 }
-.segmentaction>.contenter,.segmentchat>.contenter{
+.segmentaction>.contenter,.segmentchat>.contenter,.indexcontainer>.contenter{
   min-height:600px;
   background-color: #03202e;
   color: #d0d5d8;

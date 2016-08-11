@@ -101,7 +101,7 @@
                         },
                         score: 'amount' // times
                     }
-                    'pattern': {
+                    'pattern': {//如果是循环模式 这里是不是应该放到跟secid同一级，隶属于sections下 而不是movement下
                         
                         'type': 'fix', // var, tabata, emom, amrap
                         'define': { // fix
